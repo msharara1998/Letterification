@@ -1,8 +1,13 @@
-from .utils import *
+from typing import Literal
+
 from .constants import *
+from .utils import *
 
 
-def letterify(n: int) -> str:
+def letterify(
+    n: int,
+    lang: Literal["en", "ar"] = "en"
+) -> str:
     """
     Converts a number to its equivalent in words.
 
@@ -13,29 +18,45 @@ def letterify(n: int) -> str:
     str: The word equivalent of the input number.
     """
     if n == 0:
-        return "zero"
+        return "zero" if lang == "en" else "صفر"
 
     letter_num = []
 
-    for i, chunk in enumerate(chop_num(n), start=1):
+    for i, chunk in enumerate(chopped_numbers:= chop_num(n), start=1):
+
         if chunk == 0:
             continue
         else:
-            letter_num.insert(0, triplets_suffixes[i])
+            if lang == "ar" and i != 1:
+                letter_num.insert(0, "و")
+            letter_num.insert(0, triplets_suffixes[lang][i])
 
             if chunk < 20:
-                letter_num.insert(0, num_2_letter(chunk, ones, teens, tens))
+                letter_num.insert(0, num_2_letter(chunk, lang))
             else:
-                for d in expand(chunk):
-                    letter_num.insert(0, num_2_letter(d, ones, teens, tens))
+                expanded_chunk = expand(chunk)
+                # Handle Arabic special case for tens and ones order
+                if len(expanded_chunk) >= 2 and lang == "ar":
+                    expanded_chunk[0], expanded_chunk[1] = expanded_chunk[1], expanded_chunk[0]
 
-    return " ".join(letter_num).strip().capitalize()
+                for d in expanded_chunk:
+                    if lang == "ar" and expanded_chunk.index(d) != 0:
+                        letter_num.insert(0, "و")
+                    letter_num.insert(0, num_2_letter(d, lang))
+
+    joining_char = " " if lang == "en" else " "
+    return joining_char.join(letter_num).strip().capitalize()
 
 
 if __name__ == "__main__":
-    print(letterify(13_356_100_001))
-
-
+    print(letterify(13_356_100_001, "ar"))
+    print(letterify(1_300_010, "ar"))
+# 
 # Example:
 # >>> letterify(13_356_100_001)
 # 'thirteen billion three hundred fifty six million one hundred thousand one'
+# >>> letterify_ar(13_356_100_001)
+# 'ثلاثة عشر مليار ثلاثمئة خمسون ستة مليون مئة ألف واحد'
+# ثلاثة عشر مليار ثلاثمئة خمسون ستة مليون مئة ألف واحد
+
+ثلاثة عشر مليار و ثلاثمئة و ستة و خمسون مليون و مئة ألف و واحد

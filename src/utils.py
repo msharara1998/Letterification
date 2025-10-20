@@ -1,4 +1,5 @@
-
+from typing import Literal, List, Dict
+from .constants import *
 
 def expand(n: int) -> list[int]:
     """
@@ -46,9 +47,7 @@ def chop_num(n: int) -> list[int]:
 
 def num_2_letter(
     n: int,
-    ones: dict[int, str],
-    teens: dict[int, str],
-    tens: dict[int, str]
+    lang: Literal["en", "ar"] = "en"
 ) -> str | None:
     """
     Converts a number to its equivalent in words.
@@ -58,16 +57,28 @@ def num_2_letter(
     ones (Dict[int, str]): A dictionary mapping single digit numbers to their equivalent in words.
     teens (Dict[int, str]): A dictionary mapping teen numbers to their equivalent in words.
     tens (Dict[int, str]): A dictionary mapping tens numbers to their equivalent in words.
+    hundreds (Dict[int, str] | None): A dictionary mapping hundreds to their equivalent in words (for Arabic).
+    language (Literal["en", "ar"]): The language for conversion.
 
     Returns:
     Union[str, None]: The word equivalent of the input number, or None if the number is not handled.
     """
-    match n:
-        case n if n < 10:
+    match (n, lang):
+        case (n, "en") if n < 10:
             return ones[n]
-        case n if n < 20:
+        case (n, "en") if n < 20:
             return teens[n]
-        case n if n < 100:
+        case (n, "en") if n < 100:
             return tens[n]
-        case n if n < 1_000:
-            return ones[n / 100] + " hundred"
+        case (n, "en") if n < 1_000:
+            return ones[n // 100] + " hundred"
+        case (n, "ar") if n < 10:
+            return ones_ar[n]
+        case (n, "ar") if n < 20:
+            return teens_ar[n]
+        case (n, "ar") if n < 100:
+            return tens_ar[n]
+        case (n, "ar") if n < 1_000:
+            return hundreds_ar[n]
+        case _:
+            return None
